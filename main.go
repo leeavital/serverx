@@ -8,6 +8,7 @@ import (
 
 type AuthHeader struct {
 	Header string `header:"Authorization"`
+	Cookie string `header:"Cookie"`
 }
 
 type Adapter struct {
@@ -30,10 +31,10 @@ func (a *Adapter) Respond(resp http.ResponseWriter, req *http.Request) {
 			argType := fnTyp.In(inI)
 			if argType.Kind() == reflect.Pointer {
 				args[inI] = reflect.New(argType)
-				hydrate(args[inI], req)
+				hydrateHeader(args[inI], req)
 			} else {
 				arg := reflect.New(argType)
-				hydrate(arg, req)
+				hydrateHeader(arg, req)
 				args[inI] = reflect.Indirect(arg)
 			}
 		}
@@ -49,12 +50,13 @@ func (a *Adapter) Respond(resp http.ResponseWriter, req *http.Request) {
 // hydrate fills in the reflect.Value for a given http argument by reading the request.
 // for example, if the arg was a zerod out JSON object, we would parse the JSON object from
 // the request.Body()
-func hydrate(emptyArg reflect.Value, req *http.Request) {
+func hydrateHeader(emptyArg reflect.Value, req *http.Request) {
 	fmt.Println("emptyArg", emptyArg)
-	argType := emptyArg.Elem()
+	argType := emptyArg.Type().Elem()
 	for i := 0; i < argType.NumField(); i++ {
 		fieldType := argType.Field(i)
-		reflect.Indirect(emptyArg).Field(i).SetString("foo")
+		headerName := fieldType.Tag.Get("header")
+		reflect.Indirect(emptyArg).Field(i).SetString(req.Header.Get(headerName))
 		// todo get struct tag and set based on
 	}
 }
