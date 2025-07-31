@@ -1,0 +1,19 @@
+# Overview
+
+`serverx` is a library that aims to add some type safety and remove some boilerplate for standard `net/http` servers in Go. It has an API inspired by [JAX-RS](https://en.wikipedia.org/wiki/Jakarta_RESTful_Web_Services).
+
+Functions are defined in Go using standard Go types (structs, etc.). The library takes care of parsing requests into the nicer types, calling the function, and serializing the returned type into a response. This allows you to 
+test the logic in your HTTP handlers without spinning up a full HTTP server and writing test code to run HTTP requests and parse HTTP responses.
+
+# Design Goals
+
+* good interop with the rest of Go -- standard struct tags, and the stdlib http libraries should be first class citizens
+* unsuprising defaults and idiomatic Go
+* good error messages and diagnostics -- users should be able to understand what choices the library is making to map a function to an HTTP handler
+* Free openAPI specs wherever possible
+* interoperable with other middleware frameworks and routers
+* Easy escape hatches -- you should be able to get a raw http.Request or http.Response
+
+## Non-Goals
+* performance 
+
